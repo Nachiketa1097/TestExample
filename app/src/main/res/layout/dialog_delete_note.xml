@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#60000000"
+    android:gravity="center">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_24"
+        android:background="@drawable/new_folder_background"
+        android:foregroundGravity="center"
+        android:paddingStart="@dimen/dp_26"
+        android:paddingTop="@dimen/dp_36"
+        android:paddingEnd="@dimen/dp_26"
+        android:paddingBottom="@dimen/dp_32"
+        tools:ignore="RtlSymmetry">
+
+        <TextView
+            android:id="@+id/tv_delete_note"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/delete_note"
+            android:textColor="#414142"
+            android:textSize="@dimen/sp_16"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_24"
+            android:layout_marginEnd="@dimen/dp_16"
+            android:padding="@dimen/dp_2"
+            android:text="@string/delete"
+            android:textColor="#015E55"
+            android:textSize="@dimen/sp_16"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_delete_note" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>

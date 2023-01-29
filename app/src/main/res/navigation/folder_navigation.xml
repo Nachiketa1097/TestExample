@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/folder_navigation"
+    app:startDestination="@id/folderFragment2">
+
+    <fragment
+        android:id="@+id/folderFragment2"
+        android:name="com.example.testexample.FolderFragment"
+        android:label="FolderFragment"
+        tools:layout="@layout/fragment_folder">
+        <action
+            android:id="@+id/action_folderFragment2_to_folderNoteListFragment2"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:destination="@id/folderNoteListFragment2" />
+    </fragment>
+    <fragment
+        android:id="@+id/folderNoteListFragment2"
+        android:name="com.example.testexample.FolderNoteListFragment"
+        android:label="FolderNoteListFragment"
+        tools:layout="@layout/fragment_folder_note_list">
+
+        <argument
+            android:name="id"
+            app:argType="integer"
+            android:defaultValue="0"/>
+        <argument
+            android:name="noteTitle"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="note"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="characters"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="date"
+            app:argType="string"
+            android:defaultValue="" />
+
+        <action
+            android:id="@+id/action_folderNoteListFragment2_to_createNoteFragment2"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:destination="@id/createNoteFragment2" />
+    </fragment>
+    <fragment
+        android:id="@+id/createNoteFragment2"
+        android:name="com.example.testexample.CreateNoteFragment"
+        android:label="CreateNoteFragment"
+        tools:layout="@layout/fragment_create_note">
+
+        <argument
+            android:name="id"
+            app:argType="integer"
+            android:defaultValue="0"/>
+        <argument
+            android:name="noteTitle"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="note"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="characters"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="date"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
+</navigation>
