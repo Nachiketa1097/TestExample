@@ -32,7 +32,7 @@ class DashboardActivity : AppCompatActivity(),OnClickListener {
         setTextColor(binding.tvHome, binding.tvFolder)
         setImageIconColor(binding.ivHome,binding.ivFolder)
 
-        hideBottomLayout(View.VISIBLE)
+        hideBottomLayout(View.GONE)
     }
 
     private fun initClickListener() {
@@ -78,7 +78,7 @@ class DashboardActivity : AppCompatActivity(),OnClickListener {
 
     override fun onResume() {
         super.onResume()
-        hideBottomLayout(View.VISIBLE)
+      //  hideBottomLayout(View.VISIBLE)
         setTextColor(binding.tvHome, binding.tvFolder)
         setImageIconColor(binding.ivHome,binding.ivFolder)
     }

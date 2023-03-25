@@ -15,6 +15,7 @@ import android.view.View.OnClickListener
 import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.databinding.DataBindingUtil
@@ -22,6 +23,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.bumptech.glide.Glide
 import com.example.testexample.adapter.CreateNoteAdapter
 import com.example.testexample.databinding.FragmentHomeBinding
 import com.example.testexample.model.AppDatabase
@@ -30,16 +32,22 @@ import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.*
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() , OnClickListener, CreateNoteAdapter.Callback {
     private lateinit var binding: FragmentHomeBinding
     private lateinit var mContext: Context
     private var layoutClick: Int = 0
+    private lateinit var database: DatabaseReference
+    var arrayList = ArrayList<User>()
+    private lateinit var auth: FirebaseAuth
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -58,6 +66,26 @@ class HomeFragment : Fragment() , OnClickListener, CreateNoteAdapter.Callback {
         initClickListener()
         getGridNote()
         hideBottomLayout()
+
+        auth = Firebase.auth
+        val photoUrl = auth.currentUser?.photoUrl
+
+        Glide.with(mContext).load(photoUrl).centerCrop().into(binding.ivUserProfile)
+
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.w(TAG, "Fetching FCM registration token failed", task.exception)
+                return@OnCompleteListener
+            }
+
+            // Get new FCM registration token
+            val token = task.result
+
+            // Log and toast
+           // val msg = getString(R.string.msg_token_fmt, token)
+            //Log.d(TAG, msg)
+            Toast.makeText(mContext, "msg", Toast.LENGTH_SHORT).show()
+        })
     }
 
     private fun getGridNote() {
@@ -136,10 +164,14 @@ class HomeFragment : Fragment() , OnClickListener, CreateNoteAdapter.Callback {
                 replaceToCreateNoteFragment()
             }
             R.id.iv_search -> {
-                replaceToSearchFragment()
+                getNoteListFromFirebase()
+
+                // replaceToSearchFragment()
             }
             R.id.iv_hamburger_menu -> {
-                replaceToSearchFragment()
+                getNoteListFromFirebase()
+
+                //  replaceToSearchFragment()
             }
             R.id.iv_note_layout -> {
                 layoutClick++
@@ -153,12 +185,37 @@ class HomeFragment : Fragment() , OnClickListener, CreateNoteAdapter.Callback {
                 }
             }
             R.id.iv_user_profile -> {
-                findNavController().navigate(R.id.action_homeFragment_to_loginFragment)
             }
             R.id.tv_search -> {
-                replaceToSearchFragment()
+                //replaceToSearchFragment()
+                 getNoteListFromFirebase()
             }
         }
+    }
+
+    private fun getNoteListFromFirebase() {
+        database = FirebaseDatabase.getInstance().getReference("Note")
+
+        database.addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()){
+                    for (userSnapshot in snapshot.children){
+                     val user = userSnapshot.getValue(User::class.java)
+                      arrayList.add(user!!)
+                    }
+                        val adapter = CreateNoteAdapter(this@HomeFragment)
+                        adapter.dataSet = arrayList
+                        binding.rvNote.layoutManager =
+                            LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false)
+                        binding.rvNote.adapter = adapter
+
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+
+        })
     }
 
     private fun hideBottomLayout() {

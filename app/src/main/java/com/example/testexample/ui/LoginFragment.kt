@@ -12,9 +12,10 @@ import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
-import com.bumptech.glide.Glide
+import androidx.navigation.fragment.findNavController
 import com.example.testexample.R
 import com.example.testexample.databinding.FragmentLoginBinding
+import com.example.testexample.model.UserDetail
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -22,10 +23,13 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.database.*
 
 class LoginFragment : Fragment(), OnClickListener {
     private lateinit var binding: FragmentLoginBinding
     private lateinit var mContext: Context
+    private lateinit var database: DatabaseReference
+    private lateinit var database2: DatabaseReference
 
     private lateinit var auth:FirebaseAuth
     private lateinit var googleSignInClient: GoogleSignInClient
@@ -48,6 +52,33 @@ class LoginFragment : Fragment(), OnClickListener {
         super.onViewCreated(view, savedInstanceState)
         init()
         initClickListener()
+
+        database = FirebaseDatabase.getInstance().getReference("UserDetail")
+        database2 = FirebaseDatabase.getInstance().getReference("UserListDetail")
+
+
+
+        val userDetail = UserDetail("Kamal singh chauhan","kamalsingh1098@gmail.com")
+        database.child("userName").child("userComment").setValue(userDetail).addOnSuccessListener {
+          //  Toast.makeText(mContext,"Successfully added", Toast.LENGTH_LONG).show()
+        }.addOnFailureListener{
+            Toast.makeText(mContext,it.message.toString(), Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun signInWithEmailAndPassword() {
+        val email = binding.etEmail.text.toString()
+        val password = binding.etPassword.text.toString()
+
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val user = auth.currentUser
+                    findNavController().navigate(R.id.action_loginFragment_to_chatHomeFragment)
+                } else {
+                    Toast.makeText(mContext, "Authentication failed.",Toast.LENGTH_SHORT).show()
+                }
+            }
     }
 
     private fun init() {
@@ -61,17 +92,25 @@ class LoginFragment : Fragment(), OnClickListener {
     }
 
     private fun initClickListener() {
-        binding.tvGoogleLogin.setOnClickListener(this)
-        binding.tvLogout.setOnClickListener(this)
+       // binding.tvGoogleLogin.setOnClickListener(this)
+      //  binding.tvLogout.setOnClickListener(this)
+        binding.tvSignIn.setOnClickListener(this)
+        binding.tvSignUp.setOnClickListener(this)
     }
 
     override fun onClick(v: View?) {
         when(v?.id){
-            R.id.tv_google_login-> {
-                signInUsingGoogle()
+//            R.id.tv_google_login-> {
+//               // signInUsingGoogle()
+//            }
+//            R.id.tv_logout-> {
+//                signOutFromGoogle()
+//            }
+            R.id.tv_sign_in->{
+                signInWithEmailAndPassword()
             }
-            R.id.tv_logout-> {
-                signOutFromGoogle()
+            R.id.tv_sign_up->{
+                findNavController().navigate(R.id.action_loginFragment_to_signUpFragment)
             }
         }
     }
@@ -116,10 +155,19 @@ class LoginFragment : Fragment(), OnClickListener {
         val credential = GoogleAuthProvider.getCredential(account.idToken, null)
         auth.signInWithCredential(credential).addOnCompleteListener{
             if (it.isSuccessful){
-                Toast.makeText(mContext, "Logged In successfully", Toast.LENGTH_LONG).show()
-                binding.tvUserDetail.text = "${account.email} \n ${account.displayName}"
 
-                Glide.with(mContext).load(account.photoUrl).centerCrop().into(binding.ivUserImage);
+                val userDetail = UserDetail(auth.currentUser!!.displayName!!,auth.currentUser!!.email!!,auth.currentUser?.uid!!, auth.currentUser!!.photoUrl.toString())
+                database.child("user").child(auth.currentUser!!.displayName!!).setValue(userDetail).addOnSuccessListener {
+                    Toast.makeText(mContext,"Successfully added", Toast.LENGTH_LONG).show()
+                }.addOnFailureListener{
+                    Toast.makeText(mContext,it.message.toString(), Toast.LENGTH_LONG).show()
+                }
+             //   Toast.makeText(mContext, "Logged In successfully", Toast.LENGTH_LONG).show()
+               // binding.tvUserDetail.text = "${account.email} \n ${account.displayName}"
+
+           //     Glide.with(mContext).load(account.photoUrl).centerCrop().into(binding.ivUserImage);
+
+               findNavController().navigate(R.id.action_loginFragment_to_chatHomeFragment)
             }else{
                 Toast.makeText(mContext, it.exception.toString(), Toast.LENGTH_LONG).show()
             }
@@ -127,6 +175,26 @@ class LoginFragment : Fragment(), OnClickListener {
     }
 
     private fun signOutFromGoogle() {
+        val database = FirebaseDatabase.getInstance()
+        val myRef = database.getReference("message")
+        myRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                myRef.setValue("Hello, World!")
+
+            }
+            override fun onCancelled(error: DatabaseError) {
+            }
+        })
+
         auth.signOut()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (auth.currentUser!=null){
+            findNavController().navigate(R.id.action_loginFragment_to_chatHomeFragment)
+        }else{
+           // Toast.makeText(mContext, "Sign in using your email and password", Toast.LENGTH_LONG).show()
+        }
     }
 }

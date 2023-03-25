@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="end"
+    android:paddingStart="@dimen/dp_32"
+    android:paddingTop="@dimen/dp_4"
+    android:paddingEnd="@dimen/dp_4"
+    android:paddingBottom="@dimen/dp_4">
+
+    <TextView
+        android:id="@+id/tv_sent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/home_top_layout_background"
+        android:backgroundTint="#0057ff"
+        android:paddingStart="@dimen/dp_14"
+        android:paddingTop="@dimen/dp_4"
+        android:paddingEnd="@dimen/dp_14"
+        android:paddingBottom="@dimen/dp_4"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_16"
+        tools:text="This is Sent Message" />
+</LinearLayout>

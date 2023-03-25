@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/home_navigation"
-    app:startDestination="@id/homeFragment">
+    app:startDestination="@id/loginFragment">
+
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.testexample.HomeFragment"
@@ -46,9 +47,6 @@
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right"
             app:destination="@id/searchFragment" />
-        <action
-            android:id="@+id/action_homeFragment_to_loginFragment"
-            app:destination="@id/loginFragment" />
     </fragment>
     <fragment
         android:id="@+id/createNoteFragment"
@@ -87,5 +85,48 @@
         android:id="@+id/loginFragment"
         android:name="com.example.testexample.ui.LoginFragment"
         android:label="LoginFragment"
-        tools:layout="@layout/fragment_login"/>
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_loginFragment_to_signUpFragment"
+            app:destination="@id/signUpFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_chatHomeFragment"
+            app:destination="@id/chatHomeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/signUpFragment"
+        android:name="com.example.testexample.ui.SignUpFragment"
+        android:label="fragment_sign_up"
+        tools:layout="@layout/fragment_sign_up" >
+        <action
+            android:id="@+id/action_signUpFragment_to_uploadImageFragment"
+            app:destination="@id/uploadImageFragment"
+            app:popUpTo="@+id/action_loginFragment_to_chatHomeFragment"
+            app:popUpToInclusive="true"/>
+    </fragment>
+    <fragment
+        android:id="@+id/chatFragment"
+        android:name="com.example.testexample.ui.ChatFragment"
+        android:label="ChatFragment"
+        tools:layout="@layout/fragment_chat"/>
+    <fragment
+        android:id="@+id/chatHomeFragment"
+        android:name="com.example.testexample.ui.ChatHomeFragment"
+        android:label="ChatHomeFragment"
+        tools:layout="@layout/fragment_chat_home">
+        <action
+            android:id="@+id/action_chatHomeFragment_to_chatFragment"
+            app:destination="@id/chatFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/uploadImageFragment"
+        android:name="com.example.testexample.ui.UploadImageFragment"
+        android:label="UploadImageFragment"
+        tools:layout="@layout/fragment_upload_image">
+        <action
+            android:id="@+id/action_uploadImageFragment_to_chatHomeFragment"
+            app:popUpTo="@+id/action_signUpFragment_to_uploadImageFragment"
+            app:popUpToInclusive="true"
+            app:destination="@id/chatHomeFragment" />
+    </fragment>
 </navigation>

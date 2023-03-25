@@ -1,60 +1,107 @@
 package com.example.testexample.ui
 
+import android.app.Activity.RESULT_OK
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.provider.MediaStore
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnClickListener
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.databinding.DataBindingUtil
+import androidx.navigation.fragment.findNavController
 import com.example.testexample.R
+import com.example.testexample.databinding.FragmentSignUpBinding
+import com.example.testexample.model.UserDetail
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+class SignUpFragment : Fragment(), OnClickListener
+{
+    private lateinit var binding: FragmentSignUpBinding
+    private lateinit var mContext: Context
+    private lateinit var database: DatabaseReference
 
-/**
- * A simple [Fragment] subclass.
- * Use the [SignUpFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class SignUpFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    private lateinit var auth: FirebaseAuth
+    private val Req_Code:Int=123
+    private lateinit var googleSignInClient: GoogleSignInClient
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        mContext = context
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_sign_up, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        binding =  DataBindingUtil.inflate(inflater, R.layout.fragment_sign_up, container, false)
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment SignUpFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            SignUpFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initClickListener()
+        auth = FirebaseAuth.getInstance()
+
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken("208525921531-jl78dqgd49d9gf6tp67mjs01sh5cko0g.apps.googleusercontent.com")
+            .requestEmail().build()
+        googleSignInClient = GoogleSignIn.getClient(mContext,gso)
+
+        database = FirebaseDatabase.getInstance().getReference("UserListDetail")
+    }
+
+    private fun initClickListener() {
+        binding.tvSignIn.setOnClickListener(this)
+        binding.tvSignUp.setOnClickListener(this)
+        binding.tvUploadImage.setOnClickListener(this)
+    }
+
+    private fun signInWithEmailAndPassword() {
+        val name = binding.etName.text.toString()
+        val email = binding.etEmail.text.toString()
+        val password = binding.etPassword.text.toString()
+
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+
+                    val userDetail = UserDetail(name,email,auth.currentUser?.uid!!, "")
+                    database.child("user").child(name).setValue(userDetail).addOnSuccessListener {
+                      //   Toast.makeText(mContext,"Successfully added", Toast.LENGTH_LONG).show()
+                    }.addOnFailureListener{
+                        Toast.makeText(mContext,it.message.toString(), Toast.LENGTH_LONG).show()
+                    }
+
+                    val b = Bundle()
+                    b.putString(UploadImageFragment.USER_NAME, name)
+                    findNavController().navigate(R.id.action_signUpFragment_to_uploadImageFragment, b)
+                } else {
+                    Toast.makeText(mContext, task.exception.toString(), Toast.LENGTH_SHORT).show()
                 }
             }
     }
+
+    override fun onClick(v: View?) {
+        when(v?.id){
+            R.id.tv_sign_in ->{
+                findNavController().popBackStack()
+            }
+            R.id.tv_sign_up ->{
+              //  findNavController().navigate(R.id.action_signUpFragment_to_uploadImageFragment)
+
+               signInWithEmailAndPassword()
+            }
+            R.id.tv_upload_image ->{
+            }
+        }
+    }
+
 }

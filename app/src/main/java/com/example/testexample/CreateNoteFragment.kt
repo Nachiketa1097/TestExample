@@ -10,6 +10,7 @@ import android.view.View
 import android.view.View.*
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -17,6 +18,8 @@ import androidx.navigation.fragment.findNavController
 import com.example.testexample.databinding.FragmentCreateNoteBinding
 import com.example.testexample.model.AppDatabase
 import com.example.testexample.model.User
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -29,6 +32,7 @@ class CreateNoteFragment : Fragment(), OnClickListener, TextWatcher{
     private var mCharacters: String = ""
     private var mDate: String = ""
     private var folderName: String = ""
+    private lateinit var database: DatabaseReference
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -53,6 +57,9 @@ class CreateNoteFragment : Fragment(), OnClickListener, TextWatcher{
         folderName = arguments?.let {
             it.getString(FolderNoteListFragment.FOLDER_NAME)
         }.toString()
+
+        database = FirebaseDatabase.getInstance().getReference("Note")
+
     }
 
     private fun getArgs() {
@@ -106,6 +113,12 @@ class CreateNoteFragment : Fragment(), OnClickListener, TextWatcher{
         val db = AppDatabase.buildDatabase(mContext)
 
         val user = User(0, mNoteTitle, mNote, mCharacters , mDate, folderName)
+
+        database.child(mNoteTitle).setValue(user).addOnSuccessListener {
+            Toast.makeText(mContext,"Successfully added", Toast.LENGTH_LONG).show()
+        }.addOnFailureListener{
+            Toast.makeText(mContext,it.message.toString(), Toast.LENGTH_LONG).show()
+        }
 
         lifecycleScope.launch {
             val userDao = db.userDao()
