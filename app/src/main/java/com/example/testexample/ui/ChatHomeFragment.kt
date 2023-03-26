@@ -1,5 +1,6 @@
 package com.example.testexample.ui
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -36,10 +37,12 @@ class ChatHomeFragment : Fragment(), OnClickListener {
         return binding.root
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initClickListener()
         auth = FirebaseAuth.getInstance()
+        binding.tvUserWelcome.text = "Hello! ${auth.currentUser!!.displayName}"
 
         val vpAdapter = VpHomeAdapter(this)
         binding.vpHome.adapter = vpAdapter
